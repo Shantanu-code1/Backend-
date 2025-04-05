@@ -1,6 +1,7 @@
 package com.codecrackers.service;
 
 import com.codecrackers.dto.MonthlyProblemStatusDTO;
+import com.codecrackers.dto.ProblemOfTheDayRequestDTO;
 import com.codecrackers.model.ProblemOfTheDay;
 import com.codecrackers.model.UserProblemSolvedStatus;
 import com.codecrackers.repository.ProblemOfTheDayRepository;
@@ -29,13 +30,11 @@ public class ProblemOfTheDayService {
                 .orElseThrow(() -> new RuntimeException("No problem found for date: " + date));
     }
     
-    public boolean markProblemAsSolved(Long userId, LocalDate date) {
-        // Check if problem exists for the given date
+    public boolean markProblemAsSolved(String email, LocalDate date) {
         problemRepository.findByDate(date)
                 .orElseThrow(() -> new RuntimeException("No problem found for date: " + date));
         
-        // Find or create status record
-        Optional<UserProblemSolvedStatus> existingStatus = statusRepository.findByUserIdAndDate(userId, date);
+        Optional<UserProblemSolvedStatus> existingStatus = statusRepository.findByEmailAndDate(email, date);
         
         UserProblemSolvedStatus status;
         if (existingStatus.isPresent()) {
@@ -43,7 +42,7 @@ public class ProblemOfTheDayService {
             status.setSolved(true);
         } else {
             status = new UserProblemSolvedStatus();
-            status.setUserId(userId);
+            status.setEmail(email);
             status.setDate(date);
             status.setSolved(true);
         }
@@ -52,30 +51,26 @@ public class ProblemOfTheDayService {
         return true;
     }
     
-    public boolean isProblemSolved(Long userId, LocalDate date) {
-        return statusRepository.findByUserIdAndDate(userId, date)
+    public boolean isProblemSolved(String email, LocalDate date) {
+        return statusRepository.findByEmailAndDate(email, date)
                 .map(UserProblemSolvedStatus::isSolved)
                 .orElse(false);
     }
     
-    public MonthlyProblemStatusDTO getMonthlyProblemStatus(Long userId, int year, int month) {
+    public MonthlyProblemStatusDTO getMonthlyProblemStatus(String email, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         
-        // Get all user's solved status for the month
         List<UserProblemSolvedStatus> monthlyStatuses = 
-                statusRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+                statusRepository.findByEmailAndDateBetween(email, startDate, endDate);
         
-        // Map day of month to solved status
         Map<Integer, Boolean> dailyStatus = new HashMap<>();
         
-        // Initialize all days as false (unsolved)
         for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
             dailyStatus.put(day, false);
         }
         
-        // Update with actual solved statuses
         for (UserProblemSolvedStatus status : monthlyStatuses) {
             if (status.isSolved()) {
                 dailyStatus.put(status.getDate().getDayOfMonth(), true);
@@ -83,5 +78,22 @@ public class ProblemOfTheDayService {
         }
         
         return new MonthlyProblemStatusDTO(year, month, dailyStatus);
+    }
+
+    public ProblemOfTheDay createProblemOfTheDay(ProblemOfTheDayRequestDTO requestDTO) {
+        // Check if a problem already exists for this date
+        Optional<ProblemOfTheDay> existingProblem = problemRepository.findByDate(requestDTO.getDate());
+        
+        if (existingProblem.isPresent()) {
+            throw new RuntimeException("A problem already exists for date: " + requestDTO.getDate());
+        }
+        
+        // Create new problem
+        ProblemOfTheDay newProblem = new ProblemOfTheDay();
+        newProblem.setDate(requestDTO.getDate());
+        newProblem.setTitle(requestDTO.getTitle());
+        newProblem.setDescription(requestDTO.getDescription());
+        
+        return problemRepository.save(newProblem);
     }
 } 

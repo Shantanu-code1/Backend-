@@ -12,11 +12,11 @@ import java.util.Optional;
 
 @Repository
 public interface UserProblemSolvedStatusRepository extends JpaRepository<UserProblemSolvedStatus, Long> {
-    Optional<UserProblemSolvedStatus> findByUserIdAndDate(Long userId, LocalDate date);
+    Optional<UserProblemSolvedStatus> findByEmailAndDate(String email, LocalDate date);
     
-    @Query("SELECT u FROM UserProblemSolvedStatus u WHERE u.userId = :userId AND u.date BETWEEN :startDate AND :endDate")
-    List<UserProblemSolvedStatus> findByUserIdAndDateBetween(
-            @Param("userId") Long userId, 
+    @Query("SELECT u FROM UserProblemSolvedStatus u WHERE u.email = :email AND u.date BETWEEN :startDate AND :endDate")
+    List<UserProblemSolvedStatus> findByEmailAndDateBetween(
+            @Param("email") String email, 
             @Param("startDate") LocalDate startDate, 
             @Param("endDate") LocalDate endDate);
 } 

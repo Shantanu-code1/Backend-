@@ -5,15 +5,15 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "user_problem_solved_status",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "date"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"email", "date"}))
 public class UserProblemSolvedStatus {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "email", nullable = false)
+    private String email;
     
     @Column(nullable = false)
     private LocalDate date;
@@ -30,12 +30,12 @@ public class UserProblemSolvedStatus {
         this.id = id;
     }
     
-    public Long getUserId() {
-        return userId;
+    public String getEmail() {
+        return email;
     }
     
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setEmail(String email) {
+        this.email = email;
     }
     
     public LocalDate getDate() {
