@@ -70,6 +70,11 @@ public class DoubtServiceImpl implements DoubtService {
         return convertToRecentDoubtDTOs(filteredDoubts);
     }
     
+    @Override
+    public List<Doubt> getAllDoubts() {
+        return doubtRepository.findAll();
+    }
+    
     private List<RecentDoubtDTO> convertToRecentDoubtDTOs(List<Doubt> doubts) {
         List<RecentDoubtDTO> dtoList = new ArrayList<>();
         

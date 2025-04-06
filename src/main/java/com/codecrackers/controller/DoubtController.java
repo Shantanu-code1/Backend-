@@ -2,6 +2,7 @@ package com.codecrackers.controller;
 
 import com.codecrackers.dto.RecentDoubtDTO;
 import com.codecrackers.service.DoubtService;
+import com.codecrackers.model.Doubt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,5 +54,15 @@ public class DoubtController {
             @RequestParam(value = "limit", defaultValue = "3") int limit) {
         List<RecentDoubtDTO> filteredDoubts = doubtService.getRecentDoubtsByFilter(filter, limit);
         return ResponseEntity.ok(filteredDoubts);
+    }
+    
+    /**
+     * Get a list of all doubts
+     * @return ResponseEntity containing a list of Doubt objects
+     */
+    @GetMapping
+    public ResponseEntity<List<Doubt>> getAllDoubts() {
+        List<Doubt> allDoubts = doubtService.getAllDoubts();
+        return ResponseEntity.ok(allDoubts);
     }
 } 
