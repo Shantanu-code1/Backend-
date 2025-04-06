@@ -24,7 +24,8 @@ public interface DoubtRepository extends JpaRepository<Doubt, Long> {
     @Query("SELECT d FROM Doubt d WHERE d.topic = :category ORDER BY d.timeSubmitted DESC")
     List<Doubt> findRecentDoubtsByCategory(@Param("category") String category);
     
-    // Count replies for a doubt (placeholder - implement based on your data model)
-    @Query(value = "SELECT COUNT(*) FROM doubt_replies WHERE doubt_id = :doubtId", nativeQuery = true)
-    int countRepliesForDoubt(@Param("doubtId") Long doubtId);
+    // TODO: Implement this when the doubt_replies table is created
+    // Count replies for a doubt 
+    // @Query(value = "SELECT COUNT(*) FROM doubt_replies WHERE doubt_id = :doubtId", nativeQuery = true)
+    // int countRepliesForDoubt(@Param("doubtId") Long doubtId);
 }

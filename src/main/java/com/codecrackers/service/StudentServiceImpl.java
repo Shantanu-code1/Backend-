@@ -1,6 +1,7 @@
 package com.codecrackers.service;
 
 import com.codecrackers.config.JwtProvider;
+import com.codecrackers.dto.DoubtRequestDTO;
 import com.codecrackers.model.*;
 import com.codecrackers.repository.DoubtRepository;
 import com.codecrackers.repository.StudentRepository;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class StudentServiceImpl implements StudentService{
@@ -136,7 +139,42 @@ public class StudentServiceImpl implements StudentService{
         student.getDoubts().add(doubt);
 
         studentRepository.save(student);
+    }
 
+    @Override
+    public Doubt submitDoubtFromDTO(String jwt, DoubtRequestDTO doubtRequestDTO) throws Exception {
+        Student student = findUserByJWT(jwt);
+
+        if(student == null){
+            throw new Exception("Log in or register");
+        }
+        
+        // Create a new doubt from the DTO
+        Doubt doubt = new Doubt();
+        doubt.setTitle(doubtRequestDTO.getTitle());
+        doubt.setTopic(doubtRequestDTO.getCategory());
+        doubt.setDescription(doubtRequestDTO.getDescription());
+        doubt.setCodeSnippet(doubtRequestDTO.getCode());
+        doubt.setTagsFromList(doubtRequestDTO.getTags());
+        
+        // Set additional fields
+        doubt.setStudent(student);
+        doubt.setIsSolved(IsSolvedDoubt.PENDING);
+        doubt.setTimeSubmitted(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        
+        // For backward compatibility, set the doubt field to match title
+        doubt.setDoubt(doubtRequestDTO.getTitle());
+        
+        // Save the doubt and associate with student
+        if (student.getDoubts() == null) {
+            student.setDoubts(new ArrayList<>());
+        }
+        
+        Doubt savedDoubt = doubtRepository.save(doubt);
+        student.getDoubts().add(savedDoubt);
+        studentRepository.save(student);
+        
+        return savedDoubt;
     }
 
     @Override

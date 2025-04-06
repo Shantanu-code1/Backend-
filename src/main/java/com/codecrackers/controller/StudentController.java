@@ -1,5 +1,6 @@
 package com.codecrackers.controller;
 
+import com.codecrackers.dto.DoubtRequestDTO;
 import com.codecrackers.model.AnyQuery;
 import com.codecrackers.model.Doubt;
 import com.codecrackers.model.Review;
@@ -16,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/student")
@@ -98,6 +99,52 @@ public class StudentController {
     public ResponseEntity<String> submitDoubt(@RequestHeader("Authorization") String jwt, Doubt doubt) throws Exception {
         studentService.submitDoubt(jwt, doubt);
         return new ResponseEntity<>("Submitted", HttpStatus.OK);
+    }
+
+    @PostMapping("/submit-question")
+    public ResponseEntity<?> submitQuestion(
+            @RequestHeader("Authorization") String jwt, 
+            @RequestBody DoubtRequestDTO doubtRequestDTO) throws Exception {
+        try {
+            // Validate required fields
+            if (doubtRequestDTO.getTitle() == null || doubtRequestDTO.getTitle().trim().isEmpty()) {
+                return new ResponseEntity<>(
+                    Map.of("error", "Question title is required"), 
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            
+            if (doubtRequestDTO.getCategory() == null || doubtRequestDTO.getCategory().trim().isEmpty()) {
+                return new ResponseEntity<>(
+                    Map.of("error", "Category is required"), 
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            
+            if (doubtRequestDTO.getDescription() == null || doubtRequestDTO.getDescription().trim().isEmpty()) {
+                return new ResponseEntity<>(
+                    Map.of("error", "Description is required"), 
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            
+            // Submit the doubt using our new service method
+            Doubt savedDoubt = studentService.submitDoubtFromDTO(jwt, doubtRequestDTO);
+            
+            // Return success response with the created doubt
+            return new ResponseEntity<>(
+                Map.of(
+                    "message", "Question submitted successfully",
+                    "doubt", savedDoubt
+                ), 
+                HttpStatus.CREATED
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                Map.of("error", e.getMessage()), 
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     @GetMapping("/doubt/{id}")

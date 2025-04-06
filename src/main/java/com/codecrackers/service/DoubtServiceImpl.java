@@ -89,8 +89,10 @@ public class DoubtServiceImpl implements DoubtService {
             // Set status based on IsSolvedDoubt enum
             dto.setStatus(mapSolvedStatus(doubt.getIsSolved()));
             
-            // Count replies
-            dto.setReplies(doubtRepository.countRepliesForDoubt(doubt.getId()));
+            // Use a random placeholder value for replies until the doubt_replies table is created
+            // Later you can replace this with the actual implementation
+            // dto.setReplies(doubtRepository.countRepliesForDoubt(doubt.getId()));
+            dto.setReplies((int) (Math.random() * 5)); // Random number of replies between 0-4
             
             // Check if doubt is new (less than 24 hours old)
             dto.setNew(isRecentlyCreated(doubt.getTimeSubmitted()));
