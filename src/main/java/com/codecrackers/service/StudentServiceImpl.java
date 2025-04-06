@@ -38,19 +38,17 @@ public class StudentServiceImpl implements StudentService{
     public Student findUserByJWT(String jwt) throws Exception {
         String email = jwtProvider.getEmailFromJwtToken(jwt);
 
-        Student student = studentRepository.findByEmail(email);
-        if(student == null){
-            throw new Exception("No user found");
-        }
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception("No user found with email: " + email));
+        
         return student;
     }
 
     @Override
     public Student findUserByEmail(String username) throws Exception {
-        Student student = studentRepository.findByEmail(username);
-        if(student == null){
-            throw new Exception("No user found");
-        }
+        Student student = studentRepository.findByEmail(username)
+                .orElseThrow(() -> new Exception("No user found with email: " + username));
+        
         return student;
     }
 
@@ -79,49 +77,42 @@ public class StudentServiceImpl implements StudentService{
 
     @Override
     public void increasePointOnShare(String email) {
-        Student student = studentRepository.findByEmail(email);
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Student with email " + email + " not found."));
 
-        if (student != null) {
-            // Increment the points by getting current points, adding 1, and setting it
-            if(student.getPoints() == null || student.getPoints() == 0L){
-                student.setPoints(1L);
-            }
-            else {
-                student.setPoints(student.getPoints() + 1);
-            }
-
-            // Save the updated student object back to the repository
-            studentRepository.save(student);
-        } else {
-            // Handle the case where the student is not found
-            throw new RuntimeException("Student with email " + email + " not found.");
+        if(student.getPoints() == null || student.getPoints() == 0L){
+            student.setPoints(1L);
         }
+        else {
+            student.setPoints(student.getPoints() + 1);
+        }
+
+        studentRepository.save(student);
     }
 
     @Override
     public boolean freeDoubtAvailable(String email) {
-        Student student = studentRepository.findByEmail(email);
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Student with email " + email + " not found."));
         return student.getPoints() > 3;
     }
 
     @Override
     public void addYourReviewAboutTeacher(ReviewRequest review) {
-        // Fetch the student by email
-        Student student = studentRepository.findByEmail(review.getEmail());
+        Student student = studentRepository.findByEmail(review.getEmail())
+                .orElse(null);
 
-        // Check if student exists
         if (student == null) {
+            System.out.println("Student not found for review: " + review.getEmail());
             return;
         }
 
-        // Initialize review list if null and add the new review
         if (student.getReview() == null) {
             student.setReview(new ArrayList<>());
         }
         student.getReview().add(review.getReview());
 
         studentRepository.save(student);
-
     }
 
     @Override
@@ -149,7 +140,6 @@ public class StudentServiceImpl implements StudentService{
             throw new Exception("Log in or register");
         }
         
-        // Create a new doubt from the DTO
         Doubt doubt = new Doubt();
         doubt.setTitle(doubtRequestDTO.getTitle());
         doubt.setTopic(doubtRequestDTO.getCategory());
@@ -157,15 +147,12 @@ public class StudentServiceImpl implements StudentService{
         doubt.setCodeSnippet(doubtRequestDTO.getCode());
         doubt.setTagsFromList(doubtRequestDTO.getTags());
         
-        // Set additional fields
         doubt.setStudent(student);
         doubt.setIsSolved(IsSolvedDoubt.PENDING);
         doubt.setTimeSubmitted(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         
-        // For backward compatibility, set the doubt field to match title
         doubt.setDoubt(doubtRequestDTO.getTitle());
         
-        // Save the doubt and associate with student
         if (student.getDoubts() == null) {
             student.setDoubts(new ArrayList<>());
         }
@@ -205,11 +192,8 @@ public class StudentServiceImpl implements StudentService{
 
     @Override
     public void sendQueryToAdminMeansMe(AnyQuery anyQuery, String email) throws Exception {
-        Student student = studentRepository.findByEmail(email);
-
-        if(student == null){
-            throw new Exception("Student not found");
-        }
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception("Student not found with email: " + email));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String object1AsString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(student);

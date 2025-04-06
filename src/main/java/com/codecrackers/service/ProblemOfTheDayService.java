@@ -3,8 +3,10 @@ package com.codecrackers.service;
 import com.codecrackers.dto.MonthlyProblemStatusDTO;
 import com.codecrackers.dto.ProblemOfTheDayRequestDTO;
 import com.codecrackers.model.ProblemOfTheDay;
+import com.codecrackers.model.Student;
 import com.codecrackers.model.UserProblemSolvedStatus;
 import com.codecrackers.repository.ProblemOfTheDayRepository;
+import com.codecrackers.repository.StudentRepository;
 import com.codecrackers.repository.UserProblemSolvedStatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ public class ProblemOfTheDayService {
     @Autowired
     private UserProblemSolvedStatusRepository statusRepository;
     
+    @Autowired
+    private StudentRepository studentRepository;
+    
     public ProblemOfTheDay getProblemOfTheDay(LocalDate date) {
         return problemRepository.findByDate(date)
                 .orElseThrow(() -> new RuntimeException("No problem found for date: " + date));
@@ -34,7 +39,11 @@ public class ProblemOfTheDayService {
         problemRepository.findByDate(date)
                 .orElseThrow(() -> new RuntimeException("No problem found for date: " + date));
         
-        Optional<UserProblemSolvedStatus> existingStatus = statusRepository.findByEmailAndDate(email, date);
+        // Fetch the student by email
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Student not found with email: " + email));
+                
+        Optional<UserProblemSolvedStatus> existingStatus = statusRepository.findByUserAndDate(student, date);
         
         UserProblemSolvedStatus status;
         if (existingStatus.isPresent()) {
@@ -42,7 +51,7 @@ public class ProblemOfTheDayService {
             status.setSolved(true);
         } else {
             status = new UserProblemSolvedStatus();
-            status.setEmail(email);
+            status.setUser(student);
             status.setDate(date);
             status.setSolved(true);
         }
@@ -52,18 +61,29 @@ public class ProblemOfTheDayService {
     }
     
     public boolean isProblemSolved(String email, LocalDate date) {
-        return statusRepository.findByEmailAndDate(email, date)
+        // Fetch the student first
+        Optional<Student> studentOpt = studentRepository.findByEmail(email);
+        if (studentOpt.isEmpty()) {
+            return false; // Or throw an exception
+        }
+        Student student = studentOpt.get();
+        
+        return statusRepository.findByUserAndDate(student, date)
                 .map(UserProblemSolvedStatus::isSolved)
                 .orElse(false);
     }
     
     public MonthlyProblemStatusDTO getMonthlyProblemStatus(String email, int year, int month) {
+        // Fetch the student first
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Student not found with email: " + email));
+
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         
         List<UserProblemSolvedStatus> monthlyStatuses = 
-                statusRepository.findByEmailAndDateBetween(email, startDate, endDate);
+                statusRepository.findByUserAndDateBetween(student, startDate, endDate);
         
         Map<Integer, Boolean> dailyStatus = new HashMap<>();
         

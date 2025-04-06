@@ -48,7 +48,8 @@ public class AuthController {
     private ResponseEntity<AuthResponse> signUp(@RequestParam(name = "ref", required = false) String referralCode, @RequestBody SingUpRequest singUpRequest) throws Exception {
 
         System.out.println("singUpRequest "+ singUpRequest);
-        Student isEmailExitStudent = studentRepository.findByEmail(singUpRequest.getEmail());
+        Student isEmailExitStudent = studentRepository.findByEmail(singUpRequest.getEmail())
+                .orElse(null);
         
         if(isEmailExitStudent != null){
             System.out.println("email exist already.....");
@@ -129,7 +130,8 @@ public class AuthController {
             otpResponse.setStatus("true");
             otpResponse.setMessage("User verified successfully");
 
-            Student user = studentRepository.findByEmail(email);
+            Student user = studentRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("user not found"));
             otpResponse.setStudent(user);
 
             return new ResponseEntity<>(otpResponse, HttpStatus.OK);
@@ -141,10 +143,9 @@ public class AuthController {
     }
 
     public void verify(String email, String otp) {
-        Student user = studentRepository.findByEmail(email);
-        if(user == null){
-            throw new RuntimeException("user not found");
-        }else if (user.isVerify()) {
+        Student user = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("user not found"));
+        if(user.isVerify()){
             throw new RuntimeException("User is already verified");
         }else if(otp.equals(user.getOtp())){
             user.setVerify(true);
@@ -180,10 +181,8 @@ public class AuthController {
             throw new BadCredentialsException("Invalid Password...");
         }
 
-        Student user = studentRepository.findByEmail(username);
-        if (user == null) {
-            throw new BadCredentialsException("User not found.");
-        }
+        Student user = studentRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("user not found"));
 
         if (!user.isVerify()) {
             throw new BadCredentialsException("User is not verified.");
