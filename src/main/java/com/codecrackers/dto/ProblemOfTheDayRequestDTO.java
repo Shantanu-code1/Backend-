@@ -18,6 +18,26 @@ public class ProblemOfTheDayRequestDTO {
     @NotBlank(message = "Description is required")
     private String description;
     
+    private String difficulty;
+    
+    private String category;
+    
+    private String exampleInput;
+    
+    private String exampleOutput;
+    
+    private String timeComplexity;
+    
+    private String spaceComplexity;
+    
+    private Integer likes;
+    
+    private Integer dislikes;
+    
+    private Integer submissions;
+    
+    private Double acceptanceRate;
+    
     // Getters and Setters
     public LocalDate getDate() {
         return date;
@@ -41,5 +61,85 @@ public class ProblemOfTheDayRequestDTO {
     
     public void setDescription(String description) {
         this.description = description;
+    }
+    
+    public String getDifficulty() {
+        return difficulty;
+    }
+    
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+    
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    
+    public String getExampleInput() {
+        return exampleInput;
+    }
+    
+    public void setExampleInput(String exampleInput) {
+        this.exampleInput = exampleInput;
+    }
+    
+    public String getExampleOutput() {
+        return exampleOutput;
+    }
+    
+    public void setExampleOutput(String exampleOutput) {
+        this.exampleOutput = exampleOutput;
+    }
+    
+    public String getTimeComplexity() {
+        return timeComplexity;
+    }
+    
+    public void setTimeComplexity(String timeComplexity) {
+        this.timeComplexity = timeComplexity;
+    }
+    
+    public String getSpaceComplexity() {
+        return spaceComplexity;
+    }
+    
+    public void setSpaceComplexity(String spaceComplexity) {
+        this.spaceComplexity = spaceComplexity;
+    }
+    
+    public Integer getLikes() {
+        return likes;
+    }
+    
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+    
+    public Integer getDislikes() {
+        return dislikes;
+    }
+    
+    public void setDislikes(Integer dislikes) {
+        this.dislikes = dislikes;
+    }
+    
+    public Integer getSubmissions() {
+        return submissions;
+    }
+    
+    public void setSubmissions(Integer submissions) {
+        this.submissions = submissions;
+    }
+    
+    public Double getAcceptanceRate() {
+        return acceptanceRate;
+    }
+    
+    public void setAcceptanceRate(Double acceptanceRate) {
+        this.acceptanceRate = acceptanceRate;
     }
 } 

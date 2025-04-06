@@ -93,6 +93,16 @@ public class ProblemOfTheDayService {
         newProblem.setDate(requestDTO.getDate());
         newProblem.setTitle(requestDTO.getTitle());
         newProblem.setDescription(requestDTO.getDescription());
+        newProblem.setDifficulty(requestDTO.getDifficulty());
+        newProblem.setCategory(requestDTO.getCategory());
+        newProblem.setExampleInput(requestDTO.getExampleInput());
+        newProblem.setExampleOutput(requestDTO.getExampleOutput());
+        newProblem.setTimeComplexity(requestDTO.getTimeComplexity());
+        newProblem.setSpaceComplexity(requestDTO.getSpaceComplexity());
+        newProblem.setLikes(requestDTO.getLikes());
+        newProblem.setDislikes(requestDTO.getDislikes());
+        newProblem.setSubmissions(requestDTO.getSubmissions());
+        newProblem.setAcceptanceRate(requestDTO.getAcceptanceRate());
         
         return problemRepository.save(newProblem);
     }
