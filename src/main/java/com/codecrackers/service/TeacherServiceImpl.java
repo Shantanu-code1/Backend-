@@ -1,33 +1,23 @@
 package com.codecrackers.service;
 
-import com.codecrackers.config.JwtProvider;
 import com.codecrackers.model.*;
 import com.codecrackers.repository.DoubtRepository;
 import com.codecrackers.repository.ReviewRepository;
-import com.codecrackers.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TeacherServiceImpl implements TeacherService{
     @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private  StudentService studentService;
+    private StudentService studentService;
 
     @Autowired
     private DoubtRepository doubtRepository;
 
     @Autowired
     private ReviewRepository reviewRepository;
-
-    @Autowired
-    private JwtProvider jwtProvider;
 
     @Override
     public Long rating(String jwt) throws Exception {

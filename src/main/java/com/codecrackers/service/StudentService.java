@@ -3,11 +3,9 @@ package com.codecrackers.service;
 import com.codecrackers.dto.DoubtRequestDTO;
 import com.codecrackers.model.AnyQuery;
 import com.codecrackers.model.Doubt;
-import com.codecrackers.model.Review;
 import com.codecrackers.model.Student;
 import com.codecrackers.request.ReviewRequest;
 import com.codecrackers.response.ProfileResponseStudent;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 
