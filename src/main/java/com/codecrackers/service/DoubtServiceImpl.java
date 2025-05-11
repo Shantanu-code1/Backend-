@@ -74,6 +74,16 @@ public class DoubtServiceImpl implements DoubtService {
         return doubtRepository.findAll();
     }
     
+    @Override
+    public List<Doubt> getDoubtsByUserId(Long userId) {
+        return doubtRepository.findByStudentId(userId);
+    }
+    
+    @Override
+    public List<Doubt> getDoubtsByUserEmail(String email) {
+        return doubtRepository.findByStudentEmail(email);
+    }
+    
     private List<RecentDoubtDTO> convertToRecentDoubtDTOs(List<Doubt> doubts) {
         List<RecentDoubtDTO> dtoList = new ArrayList<>();
         

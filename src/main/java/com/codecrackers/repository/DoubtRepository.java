@@ -12,6 +12,10 @@ public interface DoubtRepository extends JpaRepository<Doubt, Long> {
     List<Doubt> findByStudentId(Long id);
     List<Doubt> findByIsSolved(IsSolvedDoubt isSolvedDoubt);
     
+    // Find doubts by student email
+    @Query("SELECT d FROM Doubt d WHERE d.student.email = :email")
+    List<Doubt> findByStudentEmail(@Param("email") String email);
+    
     // Find recent doubts
     @Query("SELECT d FROM Doubt d ORDER BY d.timeSubmitted DESC")
     List<Doubt> findRecentDoubts();
@@ -24,7 +28,6 @@ public interface DoubtRepository extends JpaRepository<Doubt, Long> {
     @Query("SELECT d FROM Doubt d WHERE d.topic = :category ORDER BY d.timeSubmitted DESC")
     List<Doubt> findRecentDoubtsByCategory(@Param("category") String category);
     
-    // TODO: Implement this when the doubt_replies table is created
     // Count replies for a doubt 
     // @Query(value = "SELECT COUNT(*) FROM doubt_replies WHERE doubt_id = :doubtId", nativeQuery = true)
     // int countRepliesForDoubt(@Param("doubtId") Long doubtId);

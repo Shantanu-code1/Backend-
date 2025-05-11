@@ -65,4 +65,26 @@ public class DoubtController {
         List<Doubt> allDoubts = doubtService.getAllDoubts();
         return ResponseEntity.ok(allDoubts);
     }
+    
+    /**
+     * Get a list of doubts for a specific user by ID
+     * @param userId The ID of the user
+     * @return ResponseEntity containing a list of Doubt objects
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Doubt>> getDoubtsByUserId(@PathVariable Long userId) {
+        List<Doubt> userDoubts = doubtService.getDoubtsByUserId(userId);
+        return ResponseEntity.ok(userDoubts);
+    }
+    
+    /**
+     * Get a list of doubts for a specific user by email
+     * @param email The email of the user
+     * @return ResponseEntity containing a list of Doubt objects
+     */
+    @GetMapping("/user/email/{email}")
+    public ResponseEntity<List<Doubt>> getDoubtsByUserEmail(@PathVariable String email) {
+        List<Doubt> userDoubts = doubtService.getDoubtsByUserEmail(email);
+        return ResponseEntity.ok(userDoubts);
+    }
 } 

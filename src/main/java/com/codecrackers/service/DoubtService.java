@@ -34,4 +34,18 @@ public interface DoubtService {
      * @return List of Doubt objects
      */
     List<Doubt> getAllDoubts();
+    
+    /**
+     * Get a list of doubts for a specific user
+     * @param userId The ID of the user
+     * @return List of Doubt objects
+     */
+    List<Doubt> getDoubtsByUserId(Long userId);
+    
+    /**
+     * Get a list of doubts for a specific user by email
+     * @param email The email of the user
+     * @return List of Doubt objects
+     */
+    List<Doubt> getDoubtsByUserEmail(String email);
 }
