@@ -119,16 +119,12 @@ public class StudentServiceImpl implements StudentService{
         Student student = findUserByJWT(jwt);
 
         if(student == null){
-            throw new Exception("Log in or register");
+            throw new Exception("Student not found");
         }
 
-        if (student.getDoubts() == null) {
-            student.setDoubts(new ArrayList<>());
-        }
+        doubt.setStudent(student);
+        doubt.setType(DoubtType.DOUBT);
         doubtRepository.save(doubt);
-        student.getDoubts().add(doubt);
-
-        studentRepository.save(student);
     }
 
     @Override
@@ -136,31 +132,22 @@ public class StudentServiceImpl implements StudentService{
         Student student = findUserByJWT(jwt);
 
         if(student == null){
-            throw new Exception("Log in or register");
+            throw new Exception("Student not found");
         }
-        
+
         Doubt doubt = new Doubt();
         doubt.setTitle(doubtRequestDTO.getTitle());
         doubt.setTopic(doubtRequestDTO.getCategory());
         doubt.setDescription(doubtRequestDTO.getDescription());
         doubt.setCodeSnippet(doubtRequestDTO.getCode());
         doubt.setTagsFromList(doubtRequestDTO.getTags());
-        
+        doubt.setType(DoubtType.DOUBT);
         doubt.setStudent(student);
-        doubt.setIsSolved(IsSolvedDoubt.PENDING);
-        doubt.setTimeSubmitted(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         
-        doubt.setDoubt(doubtRequestDTO.getTitle());
+        LocalDateTime now = LocalDateTime.now();
+        doubt.setTimeSubmitted(now.format(DateTimeFormatter.ISO_DATE_TIME));
         
-        if (student.getDoubts() == null) {
-            student.setDoubts(new ArrayList<>());
-        }
-        
-        Doubt savedDoubt = doubtRepository.save(doubt);
-        student.getDoubts().add(savedDoubt);
-        studentRepository.save(student);
-        
-        return savedDoubt;
+        return doubtRepository.save(doubt);
     }
 
     @Override

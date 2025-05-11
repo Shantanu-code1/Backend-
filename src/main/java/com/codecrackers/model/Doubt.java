@@ -42,6 +42,10 @@ public class Doubt {
     // Tags as a comma-separated string
     private String tags;
     
+    // Type field to distinguish between doubts and queries
+    @Enumerated(EnumType.STRING)
+    private DoubtType type = DoubtType.DOUBT;
+    
     private IsSolvedDoubt isSolved = IsSolvedDoubt.PENDING;
     private String doubtImage;
 

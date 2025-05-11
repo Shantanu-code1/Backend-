@@ -3,6 +3,7 @@ package com.codecrackers.service;
 import com.codecrackers.dto.QueryResponseDTO;
 import com.codecrackers.dto.SubmitQueryRequestDTO;
 import com.codecrackers.model.Doubt;
+import com.codecrackers.model.DoubtType;
 import com.codecrackers.model.IsSolvedDoubt;
 import com.codecrackers.model.Student;
 import com.codecrackers.model.USER_ROLE;
@@ -42,19 +43,15 @@ public class QueryServiceImpl implements QueryService {
     public QueryResponseDTO getQueries(int page, int limit) {
         // Adjust page for Spring's 0-based indexing
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "timeSubmitted"));
-        Page<Doubt> doubtsPage = doubtRepository.findAll(pageable);
+        Page<Doubt> doubtsPage = doubtRepository.findByType(DoubtType.QUERY, pageable);
         
         return createQueryResponseDTO(doubtsPage, page, limit);
     }
     
     @Override
     public QueryResponseDTO getQueriesByCategory(String category, int page, int limit) {
-        // For the prototype, we'll simulate filtering by category
-        // In a real implementation, you would add a repository method for this
-        // and use Spring's Pageable capabilities
-        
-        // Get all doubts by category
-        List<Doubt> categoryDoubts = doubtRepository.findRecentDoubtsByCategory(category);
+        // Get all queries by category
+        List<Doubt> categoryDoubts = doubtRepository.findRecentDoubtsByCategoryAndType(category, DoubtType.QUERY);
         
         // Simulate pagination
         int start = (page - 1) * limit;
@@ -78,6 +75,40 @@ public class QueryServiceImpl implements QueryService {
         responseDTO.setData(dataDTO);
         
         return responseDTO;
+    }
+    
+    @Override
+    public Doubt submitQuery(SubmitQueryRequestDTO requestDTO, Long studentId) {
+        Optional<Student> studentOpt = studentRepository.findById(studentId);
+        
+        if (studentOpt.isPresent()) {
+            Doubt doubt = new Doubt();
+            
+            // Set basic fields
+            doubt.setTitle(requestDTO.getTitle());
+            doubt.setDescription(requestDTO.getBody());
+            doubt.setCodeSnippet(requestDTO.getCodeSnippet());
+            doubt.setTopic(requestDTO.getCategory());
+            
+            // Set tags
+            doubt.setTagsFromList(requestDTO.getTags());
+            
+            // Set type as QUERY
+            doubt.setType(DoubtType.QUERY);
+            
+            // Set defaults
+            doubt.setIsSolved(IsSolvedDoubt.PENDING);
+            doubt.setStudent(studentOpt.get());
+            
+            // Set current timestamp
+            LocalDateTime now = LocalDateTime.now();
+            doubt.setTimeSubmitted(now.format(DateTimeFormatter.ISO_DATE_TIME));
+            
+            // Save and return
+            return doubtRepository.save(doubt);
+        }
+        
+        return null;
     }
     
     private QueryResponseDTO createQueryResponseDTO(Page<Doubt> doubtsPage, int page, int limit) {
@@ -171,36 +202,5 @@ public class QueryServiceImpl implements QueryService {
         }
         
         return queryDTOs;
-    }
-    
-    @Override
-    public Doubt submitQuery(SubmitQueryRequestDTO requestDTO, Long studentId) {
-        Optional<Student> studentOpt = studentRepository.findById(studentId);
-        
-        if (studentOpt.isPresent()) {
-            Doubt doubt = new Doubt();
-            
-            // Set basic fields
-            doubt.setTitle(requestDTO.getTitle());
-            doubt.setDescription(requestDTO.getBody());
-            doubt.setCodeSnippet(requestDTO.getCodeSnippet());
-            doubt.setTopic(requestDTO.getCategory());
-            
-            // Set tags
-            doubt.setTagsFromList(requestDTO.getTags());
-            
-            // Set defaults
-            doubt.setIsSolved(IsSolvedDoubt.PENDING);
-            doubt.setStudent(studentOpt.get());
-            
-            // Set current timestamp
-            LocalDateTime now = LocalDateTime.now();
-            doubt.setTimeSubmitted(now.format(DateTimeFormatter.ISO_DATE_TIME));
-            
-            // Save and return
-            return doubtRepository.save(doubt);
-        }
-        
-        return null;
     }
 } 

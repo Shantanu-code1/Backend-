@@ -2,6 +2,7 @@ package com.codecrackers.service;
 
 import com.codecrackers.dto.RecentDoubtDTO;
 import com.codecrackers.model.Doubt;
+import com.codecrackers.model.DoubtType;
 import com.codecrackers.model.IsSolvedDoubt;
 import com.codecrackers.repository.DoubtRepository;
 import com.codecrackers.util.TimeUtil;
@@ -24,13 +25,15 @@ public class DoubtServiceImpl implements DoubtService {
     
     @Override
     public List<RecentDoubtDTO> getRecentDoubts(int limit) {
-        List<Doubt> recentDoubts = doubtRepository.findRecentDoubtsWithLimit(limit);
+        // Only get items of type DOUBT, not QUERY
+        List<Doubt> recentDoubts = doubtRepository.findRecentDoubtsByTypeWithLimit(DoubtType.DOUBT.name(), limit);
         return convertToRecentDoubtDTOs(recentDoubts);
     }
     
     @Override
     public List<RecentDoubtDTO> getRecentDoubtsByCategory(String category, int limit) {
-        List<Doubt> categoryDoubts = doubtRepository.findRecentDoubtsByCategory(category);
+        // Only get items of type DOUBT, not QUERY
+        List<Doubt> categoryDoubts = doubtRepository.findRecentDoubtsByCategoryAndType(category, DoubtType.DOUBT);
         
         // Apply limit manually if not using a native query with LIMIT
         if (categoryDoubts.size() > limit) {
@@ -46,16 +49,15 @@ public class DoubtServiceImpl implements DoubtService {
         
         switch (filter.toLowerCase()) {
             case "doubts":
-                filteredDoubts = doubtRepository.findRecentDoubtsWithLimit(limit);
+                filteredDoubts = doubtRepository.findRecentDoubtsByTypeWithLimit(DoubtType.DOUBT.name(), limit);
                 break;
             case "queries":
-                // You can implement different filters based on your needs
-                filteredDoubts = doubtRepository.findByIsSolved(IsSolvedDoubt.PENDING);
+                filteredDoubts = doubtRepository.findRecentDoubtsByTypeWithLimit(DoubtType.QUERY.name(), limit);
                 break;
             case "ai":
-                // For AI-related doubts or other custom filters
+                // For AI-related doubts or other custom filters 
+                // This is a placeholder - you might want to add a specific field for AI-related items
                 filteredDoubts = doubtRepository.findRecentDoubtsWithLimit(limit);
-                // You might want to add additional filtering logic here
                 break;
             default:
                 filteredDoubts = doubtRepository.findRecentDoubtsWithLimit(limit);
@@ -71,17 +73,34 @@ public class DoubtServiceImpl implements DoubtService {
     
     @Override
     public List<Doubt> getAllDoubts() {
-        return doubtRepository.findAll();
+        return doubtRepository.findByType(DoubtType.DOUBT);
     }
     
     @Override
     public List<Doubt> getDoubtsByUserId(Long userId) {
+        // In this case, get both doubts and queries for the user history
         return doubtRepository.findByStudentId(userId);
     }
     
     @Override
     public List<Doubt> getDoubtsByUserEmail(String email) {
+        // In this case, get both doubts and queries for the user history
         return doubtRepository.findByStudentEmail(email);
+    }
+    
+    private boolean isRecentlyCreated(String timeSubmitted) {
+        if (timeSubmitted == null) {
+            return false;
+        }
+        
+        try {
+            LocalDateTime submittedTime = LocalDateTime.parse(timeSubmitted, DATE_FORMATTER);
+            LocalDateTime hoursAgo = LocalDateTime.now().minusHours(HOURS_THRESHOLD_FOR_NEW);
+            
+            return submittedTime.isAfter(hoursAgo);
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     private List<RecentDoubtDTO> convertToRecentDoubtDTOs(List<Doubt> doubts) {
@@ -130,21 +149,6 @@ public class DoubtServiceImpl implements DoubtService {
             case PENDING:
             default:
                 return "Pending";
-        }
-    }
-    
-    private boolean isRecentlyCreated(String timestamp) {
-        try {
-            LocalDateTime doubtTime = LocalDateTime.parse(timestamp, DATE_FORMATTER);
-            LocalDateTime now = LocalDateTime.now();
-            
-            // Calculate hours difference
-            long hoursDiff = java.time.Duration.between(doubtTime, now).toHours();
-            
-            return hoursDiff < HOURS_THRESHOLD_FOR_NEW;
-        } catch (Exception e) {
-            // In case of parsing error, default to not new
-            return false;
         }
     }
 } 
