@@ -38,6 +38,7 @@ public class StudentController {
 
         ProfileResponseStudent profileResponseStudent = new ProfileResponseStudent();
 
+        profileResponseStudent.setId(student.getId());
         profileResponseStudent.setProfileImage(student.getProfileImage());
         profileResponseStudent.setName(student.getName());
         profileResponseStudent.setEmail(student.getEmail());
