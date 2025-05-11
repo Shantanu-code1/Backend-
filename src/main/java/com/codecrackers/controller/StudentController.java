@@ -38,15 +38,34 @@ public class StudentController {
 
         ProfileResponseStudent profileResponseStudent = new ProfileResponseStudent();
 
+        // Set basic profile info
         profileResponseStudent.setId(student.getId());
-        profileResponseStudent.setProfileImage(student.getProfileImage());
         profileResponseStudent.setName(student.getName());
         profileResponseStudent.setEmail(student.getEmail());
-        profileResponseStudent.setCodingProfileLink(student.getCodingProfileLink());
         profileResponseStudent.setPhoneNumber(student.getPhoneNumber());
-        profileResponseStudent.setPoints(student.getPoints());
+        
+        // Set image and links
+        profileResponseStudent.setProfileImage(student.getProfileImage());
+        profileResponseStudent.setCodingProfileLink(student.getCodingProfileLink());
+        
+        // Set counters and statuses
         profileResponseStudent.setShares(student.getShares());
+        profileResponseStudent.setPoints(student.getPoints());
         profileResponseStudent.setDoubtFree(student.isDoubtFree());
+        profileResponseStudent.setVerify(student.isVerify());
+        
+        // Set additional fields
+        profileResponseStudent.setRating(student.getRating());
+        profileResponseStudent.setSlots(student.getSlots());
+        profileResponseStudent.setDone(student.getDone());
+        profileResponseStudent.setPending(student.getPending());
+        profileResponseStudent.setFeedback(student.getFeedback());
+        profileResponseStudent.setEarning(student.getEarning());
+        profileResponseStudent.setTotalEarning(student.getTotalEarning());
+        
+        // Set role and availability
+        profileResponseStudent.setRole(student.getRole());
+        profileResponseStudent.setAvailableForDoubts(student.getAvailableForDoubts());
 
         return new ResponseEntity<>(profileResponseStudent, HttpStatus.OK);
     }
