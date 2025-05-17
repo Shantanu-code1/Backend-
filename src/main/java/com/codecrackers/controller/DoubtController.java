@@ -3,9 +3,11 @@ package com.codecrackers.controller;
 import com.codecrackers.dto.RecentDoubtDTO;
 import com.codecrackers.service.DoubtService;
 import com.codecrackers.model.Doubt;
+import com.codecrackers.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -16,6 +18,9 @@ public class DoubtController {
 
     @Autowired
     private DoubtService doubtService;
+    
+    @Autowired
+    private StudentService studentService;
     
     private static final int DEFAULT_LIMIT = 10;
 
@@ -86,5 +91,26 @@ public class DoubtController {
     public ResponseEntity<List<Doubt>> getDoubtsByUserEmail(@PathVariable String email) {
         List<Doubt> userDoubts = doubtService.getDoubtsByUserEmail(email);
         return ResponseEntity.ok(userDoubts);
+    }
+
+    /**
+     * Initiates an answer session for a doubt and notifies the student.
+     * @param doubtId The ID of the doubt.
+     * @param jwt The JWT of the user initiating the session (teacher).
+     * @return ResponseEntity indicating success or failure.
+     */
+    @PostMapping("/{doubtId}/initiate-answer-session")
+    public ResponseEntity<String> initiateAnswerSession(
+            @PathVariable Long doubtId,
+            @RequestHeader("Authorization") String jwt) {
+        try {
+            // We need to remove "Bearer " prefix from JWT
+            String token = jwt.startsWith("Bearer ") ? jwt.substring(7) : jwt;
+            doubtService.initiateAnswerSession(doubtId, token);
+            return ResponseEntity.ok("Notification email sent to the student.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to initiate answer session: " + e.getMessage());
+        }
     }
 } 

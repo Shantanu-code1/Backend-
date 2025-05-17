@@ -48,4 +48,12 @@ public interface DoubtService {
      * @return List of Doubt objects
      */
     List<Doubt> getDoubtsByUserEmail(String email);
+
+    /**
+     * Initiates an answer session for a doubt and notifies the student via email.
+     * @param doubtId The ID of the doubt.
+     * @param initiatorJwtToken The JWT of the user initiating the session (e.g., teacher).
+     * @throws Exception If any error occurs during the process.
+     */
+    void initiateAnswerSession(Long doubtId, String initiatorJwtToken) throws Exception;
 }
