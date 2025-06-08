@@ -12,4 +12,5 @@ public class AuthResponse {
     private boolean status;
     private String message;
     private USER_ROLE role;
+    private Long studentId;
 }

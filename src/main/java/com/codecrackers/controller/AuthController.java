@@ -66,7 +66,7 @@ public class AuthController {
                 }
                 studentRepository.save(isEmailExitStudent);
                 sendVerificationEmail(isEmailExitStudent.getEmail(), otp);
-                return new ResponseEntity<>(new AuthResponse(null, false, "Verification email sent again", null), HttpStatus.OK);
+                return new ResponseEntity<>(new AuthResponse(null, false, "Verification email sent again", null, null), HttpStatus.OK);
             }
         }
 
@@ -97,6 +97,7 @@ public class AuthController {
         authResponse.setStatus(true);
         authResponse.setMessage("Register Successfully");
         authResponse.setRole(student.getRole());
+        authResponse.setStudentId(student.getId());
 
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
@@ -113,11 +114,16 @@ public class AuthController {
 
         String jwt = jwtProvider.generateToken(authentication);
 
+        // Fetch the student to get the ID
+        Student student = studentRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(jwt);
         authResponse.setMessage("Login Successfully");
         authResponse.setRole(USER_ROLE.valueOf(role));
         authResponse.setStatus(true);
+        authResponse.setStudentId(student.getId());
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
